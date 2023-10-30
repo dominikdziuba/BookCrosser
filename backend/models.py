@@ -23,3 +23,6 @@ class Shelf(models.Model):
 
     def __str__(self):
         return self.name
+    def no_of_books(self):
+        books = Book.objects.filter(shelves=self)
+        return len(books)
