@@ -19,8 +19,9 @@ class BookSelializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'author', 'description', 'added_date', 'added_by', 'taken_by']
 
 class ShelfSerializer(serializers.ModelSerializer):
+    books = BookSelializer(many=True, read_only=True)
     class Meta:
         model = Shelf
-        fields = ['id', 'name', 'address', 'latitude', 'longitude', 'latitude', 'books', 'no_of_books']
+        fields = ['id', 'name', 'address', 'latitude', 'longitude', 'books', 'no_of_books']
 
 

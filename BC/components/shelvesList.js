@@ -7,7 +7,7 @@ export default function ShelvesList(props){
 
 
     useEffect(() => {
-        fetch('http://192.168.8.149:8000/backend/shelves/', {
+        fetch('http://192.168.0.67:8000/backend/shelves/', {
             method: 'GET',
             headers: {
                 'Authorization': `Token b1f1aa222fd5201f1cb4d434eff750822942ee38`
