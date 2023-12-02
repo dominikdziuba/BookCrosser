@@ -4,9 +4,9 @@ from rest_framework import routers
 from .views import BookViewSet, ShelfViewSet, UserViewSet
 
 router = routers.DefaultRouter()
-router.register('users', UserViewSet)
-router.register('books', BookViewSet)
-router.register('shelves', ShelfViewSet)
+router.register(r'users', UserViewSet)
+router.register(r'books', BookViewSet)
+router.register(r'shelves', ShelfViewSet)
 
 
 urlpatterns = [

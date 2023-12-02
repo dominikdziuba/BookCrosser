@@ -1,11 +1,10 @@
 import React, {useState, useEffect} from "react";
 import {Button, FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
-import {faPlus} from "@fortawesome/free-solid-svg-icons";
 
 export default function BookDetail(props){
 
     const book = props.navigation.getParam('book', null)
+    const shelve = props.navigation.getParam('shelve', null)
 
     return(
         <View>
@@ -23,7 +22,7 @@ BookDetail.navigationOptions = ({ navigation }) => ({
   title: navigation.getParam('book').title || 'Przepraszamy coś poszło nie tak',
  headerRight: () =>
       <Button
-        onPress={() => navigation.navigate('EditBook', {book: navigation.getParam('book')})}
+        onPress={() => navigation.navigate('EditBook', {book: navigation.getParam('book'), shelve: navigation.getParam('shelve')})}
         title="Edytuj"
 
       />

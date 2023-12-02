@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Book, Shelf
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+
+
 class UserSelializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -11,17 +13,20 @@ class UserSelializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         token = Token.objects.create(user=user)
-        return  user
+        return user
 
-class BookSelializer(serializers.ModelSerializer):
+
+class BookSerializer(serializers.ModelSerializer):
+    #added_by = UserSelializer(many=False,read_only=True)
+    #taken_by = UserSelializer(many=False,read_only=True)
     class Meta:
         model = Book
         fields = ['id', 'title', 'author', 'description', 'added_date', 'added_by', 'taken_by']
 
+
 class ShelfSerializer(serializers.ModelSerializer):
-    books = BookSelializer(many=True, read_only=True)
+    books = BookSerializer(many=True, read_only=True)
+
     class Meta:
         model = Shelf
         fields = ['id', 'name', 'address', 'latitude', 'longitude', 'books', 'no_of_books']
-
-

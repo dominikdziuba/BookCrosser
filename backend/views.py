@@ -4,10 +4,11 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Book, Shelf
-from .serializers import BookSelializer, ShelfSerializer, UserSelializer
+from .serializers import BookSerializer, ShelfSerializer, UserSelializer
 from geopy.distance import geodesic
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -16,27 +17,45 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
-    serializer_class = BookSelializer
+    serializer_class = BookSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes =(IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
+
 
 class ShelfViewSet(viewsets.ModelViewSet):
     queryset = Shelf.objects.all()
     serializer_class = ShelfSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes =(IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
+
+    @action(detail=True, methods=['PUT'], url_path='edit_book_in_shelf/(?P<book_id>\d+)')
+    def edit_book_in_shelf(self, request, pk=None, book_id=None):
+        user = request.user
+        shelf = Shelf.objects.get(id=pk)
+
+        try:
+            book = shelf.books.get(id=book_id)
+        except Book.DoesNotExist:
+            return Response({'message': 'Book not found on the shelf'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = BookSerializer(book, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(BookSerializer(book).data, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['POST'])
     def add_book_to_shelf(self, request, pk=None):
-        # user = User.objects.get(id=1)
-        user = request.user
+        user = User.objects.get(id=1)
+        #user = request.user
         shelf = Shelf.objects.get(id=pk)
-        serializer = BookSelializer(data=request.data)
+        serializer = BookSerializer(data=request.data)
         if serializer.is_valid():
             book = serializer.save(added_by=user)
             shelf.books.add(book)
 
-            return Response({'message': 'Book added to shelf successfully'}, status=status.HTTP_201_CREATED)
+            return Response(BookSerializer(book).data,  status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
