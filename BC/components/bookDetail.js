@@ -5,7 +5,8 @@ export default function BookDetail(props){
 
     const book = props.navigation.getParam('book', null)
     const shelve = props.navigation.getParam('shelve', null)
-
+    const token = props.navigation.getParam('token', '')
+    console.log(token)
     return(
         <View>
             <Text>{book.title}</Text>
@@ -22,7 +23,7 @@ BookDetail.navigationOptions = ({ navigation }) => ({
   title: navigation.getParam('book').title || 'Przepraszamy coś poszło nie tak',
  headerRight: () =>
       <Button
-        onPress={() => navigation.navigate('EditBook', {book: navigation.getParam('book'), shelve: navigation.getParam('shelve')})}
+        onPress={() => navigation.navigate('EditBook', {book: navigation.getParam('book'), shelve: navigation.getParam('shelve'), token: navigation.getParam('token')})}
         title="Edytuj"
 
       />

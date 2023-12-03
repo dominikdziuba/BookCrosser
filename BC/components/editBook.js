@@ -4,6 +4,7 @@ import {Button, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View} f
 export default function EditBook(props){
     const shelve = props.navigation.getParam('shelve', null);
     const book = props.navigation.getParam('book', null)
+    const token = props.navigation.getParam('token', '')
     const [title, setTitle] = useState(book.title)
     const [author, setAuthor] = useState(book.author)
     const [description, setDecription] = useState(book.description)
@@ -12,10 +13,10 @@ export default function EditBook(props){
 
     const saveBook = () => {
         if (book.id){
-                    fetch(`http://192.168.8.134:8000/backend/shelves/${shelve.id}/edit_book_in_shelf/${book.id}/`, {
+            fetch(`http://192.168.8.134:8000/backend/shelves/${shelve.id}/edit_book_in_shelf/${book.id}/`, {
             method: 'PUT',
             headers: {
-                'Authorization': `Token b1f1aa222fd5201f1cb4d434eff750822942ee38`,
+                'Authorization': `Token ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -34,7 +35,7 @@ export default function EditBook(props){
             fetch(`http://192.168.8.134:8000/backend/shelves/${shelve.id}/add_book_to_shelf/`, {
             method: 'POST',
             headers: {
-                'Authorization': `Token b1f1aa222fd5201f1cb4d434eff750822942ee38`,
+                'Authorization': `Token ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -83,6 +84,7 @@ export default function EditBook(props){
 
     );
 }
+
 
 EditBook.navigationOptions = ({ navigation }) => ({
   title: navigation.getParam('book').title || 'Dodaj nową książkę do tej półki',

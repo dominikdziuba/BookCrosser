@@ -1,25 +1,41 @@
 import React, {useState, useEffect} from "react";
 import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ShelvesList(props){
 
     const [shelves, setShelves] = useState([])
+    let token  = null;
 
+    const getToken = async () => {
+        token = await AsyncStorage.getItem('Token')
+        if (token){
+            getShelves();
+            console.log(token)
+        }else{
+            props.navigation.navigate('Auth')
+        }
 
+    }
     useEffect(() => {
+        getToken();
+
+    }, []);
+
+    const getShelves = () => {
         fetch('http://192.168.8.134:8000/backend/shelves/', {
             method: 'GET',
             headers: {
-                'Authorization': `Token b1f1aa222fd5201f1cb4d434eff750822942ee38`
+                'Authorization': `Token ${token}`
             }
         })
             .then(res => res.json())
             .then(jsonRes => setShelves((jsonRes)))
             .catch(error => console.log(error))
-    }, []);
+    }
 
-        const shelveClicked = (shelve) => {
-        props.navigation.navigate("ShelveDetail", {shelve: shelve})
+    const shelveClicked = (shelve, token) => {
+        props.navigation.navigate("ShelveDetail", {shelve: shelve, token: token})
     }
 
     return(
