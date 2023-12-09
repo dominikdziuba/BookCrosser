@@ -12,8 +12,9 @@ export default function EditBook(props){
 
 
     const saveBook = () => {
+
         if (book.id){
-            fetch(`http://192.168.8.134:8000/backend/shelves/${shelve.id}/edit_book_in_shelf/${book.id}/`, {
+            fetch(`http://192.168.0.213:8000/backend/shelves/${shelve.id}/edit_book_in_shelf/${book.id}/`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Token ${token}`,
@@ -27,12 +28,12 @@ export default function EditBook(props){
         })
             .then(res => res.json())
             .then(book => {
-
+                console.log(token)
                 props.navigation.navigate("BookDetail", {book: book, shelve: shelve})            })
             .catch(error => console.log(error))
 
         }else{
-            fetch(`http://192.168.8.134:8000/backend/shelves/${shelve.id}/add_book_to_shelf/`, {
+            fetch(`http://192.168.0.213:8000/backend/shelves/${shelve.id}/add_book_to_shelf/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Token ${token}`,
@@ -45,7 +46,8 @@ export default function EditBook(props){
             }),
             })
                 .then(res => res.json())
-                .then(book => {
+                .then(res => {
+                    console.log(token)
                 props.navigation.navigate("ShelveDetail", {shelve: shelve})})
                 .catch(error => console.log(error))
 

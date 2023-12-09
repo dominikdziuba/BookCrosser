@@ -1,19 +1,25 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Book, Shelf
-from .serializers import BookSerializer, ShelfSerializer, UserSelializer
+from .models import Book, Shelf, City
+from .serializers import BookSerializer, ShelfSerializer, UserSerializer, CitySerialzer
 from geopy.distance import geodesic
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.shortcuts import get_object_or_404
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSelializer
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
 
+class CityViewSet(viewsets.ModelViewSet):
+    queryset = City.objects.all()
+    serializer_class = CitySerialzer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
@@ -27,6 +33,24 @@ class ShelfViewSet(viewsets.ModelViewSet):
     serializer_class = ShelfSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+
+    @action(detail=False, methods=['GET'])
+    def shelves_in_city(self, request):
+        city_id = request.GET.get('city_id')  # Pobierz identyfikator miasta z parametru zapytania
+        shelves = Shelf.objects.filter(location__id=city_id)
+        serializer = ShelfSerializer(shelves, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['GET'])
+    def books_in_city(self, request):
+        city_id = request.GET.get('city_id')
+
+        city = get_object_or_404(City, id=city_id)
+        shelves = Shelf.objects.filter(location=city)
+
+        books = Book.objects.filter(shelves__in=shelves)
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['PUT'], url_path='edit_book_in_shelf/(?P<book_id>\d+)')
     def edit_book_in_shelf(self, request, pk=None, book_id=None):
@@ -47,15 +71,15 @@ class ShelfViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['POST'])
     def add_book_to_shelf(self, request, pk=None):
-        user = User.objects.get(id=1)
-        #user = request.user
+        # user = User.objects.get(id=1)
+        user = request.user
         shelf = Shelf.objects.get(id=pk)
         serializer = BookSerializer(data=request.data)
         if serializer.is_valid():
             book = serializer.save(added_by=user)
             shelf.books.add(book)
 
-            return Response(BookSerializer(book).data,  status=status.HTTP_201_CREATED)
+            return Response(BookSerializer(book).data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

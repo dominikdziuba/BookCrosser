@@ -12,7 +12,7 @@ export default function Auth(props){
 
     const auth = () => {
 
-        fetch(`http://192.168.8.134:8000/auth/`, {
+        fetch(`http://192.168.0.213:8000/auth/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -25,7 +25,7 @@ export default function Auth(props){
             .then(res => res.json())
             .then(res => {
                 saveToken(res.token);
-                props.navigation.navigate('ShelvesList')
+                props.navigation.navigate('CityList')
 
             })
             .catch(error => console.log(error))
@@ -35,7 +35,7 @@ export default function Auth(props){
     }
     const getToken = async () => {
          const token = await AsyncStorage.getItem('Token');
-         if (token) props.navigation.navigate('ShelvesList')
+         if (token) props.navigation.navigate('CityList')
     }
 
     return(
