@@ -16,7 +16,7 @@ const takeBook = () => {
     },
     body: JSON.stringify({
       book_id: book.id,
-      // inne dane, które chcesz przekazać
+
     }),
   })
   .then(res => res.json())

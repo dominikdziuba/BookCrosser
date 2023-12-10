@@ -123,7 +123,19 @@ class ShelfViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def get_closest_shelf(self, request):
-        user_coords = (50.058667, 19.942972)
+        user_latitude_str = request.GET.get('user_latitude', '')
+        user_longitude_str = request.GET.get('user_longitude', '')
+
+        if user_latitude_str is None or user_longitude_str is None:
+            return Response({'error': 'User coordinates are missing or invalid.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user_latitude = float(user_latitude_str)
+            user_longitude = float(user_longitude_str)
+        except ValueError:
+            return Response({'error': 'Invalid user coordinates.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_coords = (user_latitude,user_longitude)
         shelves = Shelf.objects.all()
 
         closest_shelf = None
@@ -139,10 +151,11 @@ class ShelfViewSet(viewsets.ModelViewSet):
 
         if closest_shelf is not None:
             response_data = {
+                'id': closest_shelf.id,
                 "closest_shelf_name": closest_shelf.name,
                 "address": closest_shelf.address,
                 "closest_shelf_distance_km": smallest_dist
             }
             return Response(response_data, status=status.HTTP_200_OK)
         else:
-            return Response({'message': 'No shelves found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response( status=status.HTTP_404_NOT_FOUND)

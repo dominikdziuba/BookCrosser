@@ -1,17 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 
 export default function ShelvesList(props) {
    const cityId = props.navigation.getParam('cityId', null);
   const [shelves, setShelves] = useState([]);
+   const [closestShelf, setClosestShelf] = useState(null);
   let token = null;
+
+const getLocationAsync = async () => {
+  let { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+    console.log('Permission to access location was denied');
+    return;
+  }
+
+  let location = await Location.getCurrentPositionAsync({});
+  //console.log('Current location:', location);
+   getClosestShelf(location.coords.latitude, location.coords.longitude);
+};
 
   const getToken = async () => {
     token = await AsyncStorage.getItem('Token');
     if (token) {
       getShelves();
       console.log(token);
+      //getLocationAsync()
+
     } else {
       props.navigation.navigate('Auth');
     }
@@ -19,6 +35,7 @@ export default function ShelvesList(props) {
 
   useEffect(() => {
     getToken();
+    getLocationAsync();
   }, []);
 
 
@@ -34,7 +51,20 @@ const getShelves = () => {
     .catch(error => console.log(error))
 }
 
-
+  const getClosestShelf = (userLatitude, userLongitude) => {
+    fetch(`http://192.168.0.143:8000/backend/shelves/get_closest_shelf/?user_latitude=${userLatitude}&user_longitude=${userLongitude}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(jsonRes => {
+        setClosestShelf(jsonRes)
+        console.log(closestShelf)
+      })
+      .catch(error => console.log(error));
+  };
   const shelveClicked = (shelve, token) => {
     props.navigation.navigate("ShelveDetail", { shelve: shelve, token: token })
   }
