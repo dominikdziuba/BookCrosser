@@ -31,7 +31,7 @@ export default function ShelveDetail(props) {
     }, []);
 
     const getShelveDetail = (token) => {
-        fetch(`http://192.168.0.213:8000/backend/shelves/${shelve.id}/`, {
+        fetch(`http://192.168.0.143:8000/backend/shelves/${shelve.id}/`, {
             method: 'GET',
             headers: {
                 'Authorization': `Token ${token}`
@@ -73,7 +73,7 @@ ShelveDetail.navigationOptions = ({ navigation }) => ({
     title: navigation.getParam('shelve').name || 'Przepraszamy coś poszło nie tak',
     headerRight: () => (
         <Button
-            onPress={() => navigation.navigate('EditBook', {book: {title: '', author: '', description: ''}, shelve: navigation.getParam('shelve'), token: navigation.getParam('token')})}
+            onPress={() => navigation.navigate('AddBook', {book: {title: '', author: '', description: ''}, shelve: navigation.getParam('shelve'), token: navigation.getParam('token')})}
             title="Dodaj"
         />
     ),

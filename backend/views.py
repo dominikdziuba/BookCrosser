@@ -8,7 +8,7 @@ from geopy.distance import geodesic
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
-
+from django.db.models import Q
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -44,14 +44,23 @@ class ShelfViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def books_in_city(self, request):
         city_id = request.GET.get('city_id')
+        search_query = request.GET.get('search_query', '')
+
 
         city = get_object_or_404(City, id=city_id)
         shelves = Shelf.objects.filter(location=city)
 
-        books = Book.objects.filter(shelves__in=shelves)
+
+        books = Book.objects.filter(
+            shelves__in=shelves,
+            title__icontains=search_query
+        ) | Book.objects.filter(
+            shelves__in=shelves,
+            author__icontains=search_query
+        )
+        print(books)
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(detail=True, methods=['PUT'], url_path='edit_book_in_shelf/(?P<book_id>\d+)')
     def edit_book_in_shelf(self, request, pk=None, book_id=None):
         user = request.user
@@ -83,12 +92,12 @@ class ShelfViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['POST'])
+    @action(detail=True, methods=['PUT'])
     def take_book_from_shelf(self, request, pk=None):
         shelf = self.get_object()
         # user = User.objects.get(id=1)
         user = request.user
-        print(user)
+
         book_id = request.data.get('book_id')
 
         try:
@@ -100,7 +109,7 @@ class ShelfViewSet(viewsets.ModelViewSet):
         book.save()
         shelf.books.remove(book)
 
-        return Response({'message': 'Book taken from the shelf successfully'}, status=status.HTTP_200_OK)
+        return Response(BookSerializer(book).data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['POST'])
     def create_shelf(self, request):

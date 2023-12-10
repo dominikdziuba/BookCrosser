@@ -23,7 +23,7 @@ export default function ShelvesList(props) {
 
 
 const getShelves = () => {
-  fetch(`http://192.168.0.213:8000/backend/shelves/shelves_in_city?city_id=${cityId}`, {
+  fetch(`http://192.168.0.143:8000/backend/shelves/shelves_in_city?city_id=${cityId}`, {
     method: 'GET',
     headers: {
       'Authorization': `Token ${token}`

@@ -7,7 +7,7 @@ export default function Register(props) {
   const [password, setPassword] = useState("");
 
   const register = () => {
-    fetch(`http://192.168.0.213:8000/backend/users/`, {
+    fetch(`http://192.168.0.143:8000/backend/users/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

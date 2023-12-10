@@ -11,6 +11,7 @@ import Start from "./components/start"
 import Register from "./components/register";
 import CityList from "./components/cityList";
 import SearchBook from "./components/searchBook";
+import AddBook from "./components/addBook";
 const AppNavigator = createStackNavigator({
     Start: {screen: Start},
     Register: {screen: Register},
@@ -19,6 +20,7 @@ const AppNavigator = createStackNavigator({
     SearchBook: {screen: SearchBook},
     ShelvesList: {screen: ShelvesList},
     ShelveDetail: {screen: ShelveDetail},
+    AddBook: {screen: AddBook},
     BookDetail: {screen: BookDetail},
     EditBook: {screen: EditBook},
 })

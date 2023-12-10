@@ -1,20 +1,30 @@
 import React, {useState, useEffect} from "react";
 import {Button, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function EditBook(props){
+export default function AddBook(props){
     const shelve = props.navigation.getParam('shelve', null);
     const book = props.navigation.getParam('book', null)
-    const token = props.navigation.getParam('token', '')
+    let token = null
     const [title, setTitle] = useState(book.title)
     const [author, setAuthor] = useState(book.author)
     const [description, setDecription] = useState(book.description)
+ const getToken = async () => {
+    token = await AsyncStorage.getItem('Token');
+    if (token) {
 
+    } else {
+      props.navigation.navigate('Auth');
+    }
+  }
 
+  useEffect(() => {
+    getToken();
+  });
 
     const saveBook = () => {
-
-            fetch(`http://192.168.0.143:8000/backend/shelves/${shelve.id}/edit_book_in_shelf/${book.id}/`, {
-            method: 'PUT',
+            fetch(`http://192.168.0.143:8000/backend/shelves/${shelve.id}/add_book_to_shelf/`, {
+            method: 'POST',
             headers: {
                 'Authorization': `Token ${token}`,
                 'Content-Type': 'application/json'
@@ -24,14 +34,12 @@ export default function EditBook(props){
                 author: author,
                 description: description
             }),
-        })
-            .then(res => res.json())
-            .then(book => {
-                console.log(token)
-                props.navigation.navigate("BookDetail", {book: book, shelve: shelve})            })
-            .catch(error => console.log(error))
-
-
+            })
+                .then(res => res.json())
+                .then(res => {
+                    console.log(token)
+                props.navigation.navigate("ShelveDetail", {shelve: shelve})})
+                .catch(error => console.log(error))
     }
 
 
@@ -67,7 +75,7 @@ export default function EditBook(props){
 }
 
 
-EditBook.navigationOptions = ({ navigation }) => ({
+AddBook.navigationOptions = ({ navigation }) => ({
   title: navigation.getParam('book').title || 'Dodaj nową książkę do tej półki',
 
     headerStyle: {
