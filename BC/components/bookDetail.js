@@ -39,14 +39,7 @@ export default function BookDetail(props) {
             );
         } else {
             // Dodaj odpowiednie działania w przypadku przycisku "Dodaj"
-            return (
-                <IconButton
-                    icon="plus"
-                    color="#2c2829"
-                    size={30}
-                    onPress={() => {/* Dodaj swoją logikę */}}
-                />
-            );
+            return ;
         }
     }
 

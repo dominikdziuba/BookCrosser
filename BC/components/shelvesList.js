@@ -136,12 +136,13 @@ const hideAlert = () => {
       />
 
       <View style={styles.iconContainer}>
-        <IconButton icon="logout" color="#2c2829" onPress={logout} />
         <IconButton icon="magnify" color="#2c2829" onPress={search} />
         <IconButton icon="map-marker" color="#2c2829" onPress={showAlert} />
         <IconButton icon="book" color="#2c2829" onPress={getYourBooks} />
         <IconButton icon="swap-horizontal" color="#2c2829" onPress={changeCity} />
-        <IconButton icon="account" color="#2c2829" onPress={getUserProfile} />
+        <IconButton icon="logout" color="#2c2829" onPress={logout} />
+
+        {/*<IconButton icon="account" color="#2c2829" onPress={getUserProfile} />*/}
       </View>
 
       <AwesomeAlert
