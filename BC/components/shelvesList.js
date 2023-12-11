@@ -3,11 +3,14 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { Button, IconButton } from 'react-native-paper';
-
+import AwesomeAlert from 'react-native-awesome-alerts';
 export default function ShelvesList(props) {
    const cityId = props.navigation.getParam('cityId', null);
   const [shelves, setShelves] = useState([]);
    const [closestShelf, setClosestShelf] = useState(null);
+   const [isAlertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
   let token = null;
 
 const getLocationAsync = async () => {
@@ -60,9 +63,9 @@ const getShelves = () => {
     })
       .then(res => res.json())
       .then(jsonRes => {
-        console.log(jsonRes)
+        //(jsonRes)
         setClosestShelf(jsonRes)
-        console.log(closestShelf)
+        //console.log(closestShelf)
       })
       .catch(error => console.log(error));
   };
@@ -90,6 +93,34 @@ props.navigation.navigate("CityList");
 const getUserProfile =() => {
 props.navigation.navigate("UserProfile");
 }
+
+ const showAlert = () => {
+  if (closestShelf) {
+    // Pobierz dane z obiektu closestShelf
+    console.log(closestShelf)
+    const { closest_shelf_name, address, closest_shelf_distance_km } = closestShelf;
+    //const shelfName = name !== undefined ? `"${name}"` : 'Brak informacji o nazwie';
+    // Ustaw dane do wyświetlenia w AwesomeAlert
+    setAlertTitle('Najbliższa półka');
+    setAlertMessage(
+      `Nazwa półki: "${closest_shelf_name}"\nAdres: "${address}"\nDystans: "${closest_shelf_distance_km}"`
+    );
+
+    // Pokaż AwesomeAlert
+    setAlertVisible(true);
+  } else {
+    // Jeśli closestShelf jest null, pokaż alert o braku danych
+    setAlertTitle('Błąd');
+    setAlertMessage('Nie udało się pobrać danych o najbliższej półce.');
+    setAlertVisible(true);
+  }
+};
+
+const hideAlert = () => {
+    setAlertVisible(false);
+    setAlertTitle('');
+    setAlertMessage('');
+  };
   return (
     <View style={styles.container}>
       <FlatList
@@ -107,11 +138,25 @@ props.navigation.navigate("UserProfile");
       <View style={styles.iconContainer}>
         <IconButton icon="logout" color="#2c2829" onPress={logout} />
         <IconButton icon="magnify" color="#2c2829" onPress={search} />
-        <IconButton icon="map-marker" color="#2c2829" onPress={getLocationAsync} />
+        <IconButton icon="map-marker" color="#2c2829" onPress={showAlert} />
         <IconButton icon="book" color="#2c2829" onPress={getYourBooks} />
         <IconButton icon="swap-horizontal" color="#2c2829" onPress={changeCity} />
         <IconButton icon="account" color="#2c2829" onPress={getUserProfile} />
       </View>
+
+      <AwesomeAlert
+        show={isAlertVisible}
+        showProgress={false}
+        title={alertTitle}
+        message={alertMessage}
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={false}
+        showCancelButton={false}
+        showConfirmButton={true}
+        confirmText="OK"
+        confirmButtonColor="#2c2829"
+        onConfirmPressed={hideAlert}
+      />
     </View>
   );
 }

@@ -31,7 +31,7 @@ export default function UserProfile(props) {
 
   const getUserData = () => {
     console.log(token);
-    fetch(`http://192.168.0.248:8000/backend/users/7/`, {
+    fetch(`http://192.168.0.248:8000/backend/users/${userData.id}/`, {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`
@@ -53,11 +53,19 @@ export default function UserProfile(props) {
 
   return (
       <View>
+        <Text>Twoje dane to:</Text>
         {userData ? (
             <Text>{userData.username}</Text>
         ) : (
             <Text>Loading...</Text>
         )}
+
+        {userData ? (
+            <Text>{userData.email}</Text>
+        ) : (
+            <Text>Loading...</Text>
+        )}
+        <Text> W przypadku chęci zmiany skontaktuj się z administracją pod adresem mailowym administracja@test.pl</Text>
       </View>
   );
 }

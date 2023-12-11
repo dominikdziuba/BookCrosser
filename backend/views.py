@@ -140,7 +140,8 @@ class ShelfViewSet(viewsets.ModelViewSet):
     def get_closest_shelf(self, request):
         user_latitude_str = request.GET.get('user_latitude', '')
         user_longitude_str = request.GET.get('user_longitude', '')
-
+        print(user_latitude_str)
+        print(user_longitude_str)
         if user_latitude_str is None or user_longitude_str is None:
             return Response({'error': 'User coordinates are missing or invalid.'}, status=status.HTTP_400_BAD_REQUEST)
 
