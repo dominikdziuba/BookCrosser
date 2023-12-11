@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
+import { Button, IconButton } from 'react-native-paper';
 
 export default function ShelvesList(props) {
    const cityId = props.navigation.getParam('cityId', null);
@@ -10,6 +11,7 @@ export default function ShelvesList(props) {
   let token = null;
 
 const getLocationAsync = async () => {
+  getToken();
   let { status } = await Location.requestForegroundPermissionsAsync();
   if (status !== 'granted') {
     console.log('Permission to access location was denied');
@@ -25,8 +27,6 @@ const getLocationAsync = async () => {
     token = await AsyncStorage.getItem('Token');
     if (token) {
       getShelves();
-      console.log(token);
-      //getLocationAsync()
 
     } else {
       props.navigation.navigate('Auth');
@@ -40,7 +40,7 @@ const getLocationAsync = async () => {
 
 
 const getShelves = () => {
-  fetch(`http://192.168.0.143:8000/backend/shelves/shelves_in_city?city_id=${cityId}`, {
+  fetch(`http://192.168.0.248:8000/backend/shelves/shelves_in_city?city_id=${cityId}`, {
     method: 'GET',
     headers: {
       'Authorization': `Token ${token}`
@@ -52,7 +52,7 @@ const getShelves = () => {
 }
 
   const getClosestShelf = (userLatitude, userLongitude) => {
-    fetch(`http://192.168.0.143:8000/backend/shelves/get_closest_shelf/?user_latitude=${userLatitude}&user_longitude=${userLongitude}`, {
+    fetch(`http://192.168.0.248:8000/backend/shelves/get_closest_shelf/?user_latitude=${userLatitude}&user_longitude=${userLongitude}`, {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`
@@ -60,6 +60,7 @@ const getShelves = () => {
     })
       .then(res => res.json())
       .then(jsonRes => {
+        console.log(jsonRes)
         setClosestShelf(jsonRes)
         console.log(closestShelf)
       })
@@ -80,10 +81,17 @@ const search = (shelves, token) =>{
   props.navigation.navigate("SearchBook",{ cityId: cityId, token: token })
 }
 
-
-
+const getYourBooks =(cityId) => {
+props.navigation.navigate("UserBookList", {cityId: cityId} );
+}
+const changeCity =() => {
+props.navigation.navigate("CityList");
+}
+const getUserProfile =() => {
+props.navigation.navigate("UserProfile");
+}
   return (
-    <View>
+    <View style={styles.container}>
       <FlatList
         data={shelves}
         renderItem={({ item }) => (
@@ -95,37 +103,58 @@ const search = (shelves, token) =>{
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-      <Button title="Wyloguj" onPress={logout} />
-      <Button title="Wyszukaj" onPress={search} />
+
+      <View style={styles.iconContainer}>
+        <IconButton icon="logout" color="#2c2829" onPress={logout} />
+        <IconButton icon="magnify" color="#2c2829" onPress={search} />
+        <IconButton icon="map-marker" color="#2c2829" onPress={getLocationAsync} />
+        <IconButton icon="book" color="#2c2829" onPress={getYourBooks} />
+        <IconButton icon="swap-horizontal" color="#2c2829" onPress={changeCity} />
+        <IconButton icon="account" color="#2c2829" onPress={getUserProfile} />
+      </View>
     </View>
   );
 }
 
 ShelvesList.navigationOptions = ({ navigation }) => ({
-  title: 'Lista półek',
+  title: 'Półki',
   headerStyle: {
-    backgroundColor: 'red',
+    backgroundColor: '#9b4e0a',
   },
   headerTitleStyle: {
     fontWeight: 'bold',
   },
- // headerLeft: () => null
+  headerLeft: () => null
 });
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#f1f4f3',
     alignItems: 'center',
     justifyContent: 'center'
   },
   item: {
-    flex: 1,
-    padding: 10,
-    height: 50,
-    backgroundColor: '#282C35'
+    backgroundColor: "#2c2829",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    marginVertical: 10,
+    borderRadius: 10,
   },
   itemName: {
-    color: 'white'
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 10,
+    backgroundColor: '#fff', // Kolor tła ikonowego kontenera (możesz dostosować według własnych preferencji)
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { IconButton } from 'react-native-paper';
 
 export default function ShelveDetail(props) {
     const shelve = props.navigation.getParam('shelve', null);
@@ -31,7 +32,7 @@ export default function ShelveDetail(props) {
     }, []);
 
     const getShelveDetail = (token) => {
-        fetch(`http://192.168.0.143:8000/backend/shelves/${shelve.id}/`, {
+        fetch(`http://192.168.0.248:8000/backend/shelves/${shelve.id}/`, {
             method: 'GET',
             headers: {
                 'Authorization': `Token ${token}`
@@ -47,62 +48,69 @@ export default function ShelveDetail(props) {
     };
 
     return (
-        <View style={styles.navBar}>
-            <Text style={styles.address}>{getFirstPartOfAddress()}</Text>
-            {<Text> W tej półce jest tyle książek {shelve.no_of_books}</Text>}
-            <View>
-                <FlatList
-                    data={books}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => bookClicked(item)}>
-                            <View style={styles.item}>
-                                <Text style={styles.itemName}> {item.author}</Text>
-                                <Text style={styles.itemName}> {item.added_by}</Text>
-                                <Text style={styles.itemName}> {item.title}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    )}
-                    keyExtractor={(item, index) => index.toString()}
-                />
-            </View>
+        <View style={styles.container}>
+            <Text style={styles.name}>{shelve.name}</Text>
+            <Text style={styles.name}>{getFirstPartOfAddress()}</Text>
+            <Text> Prawdopodobna liczba książek: {shelve.no_of_books}</Text>
+            <FlatList
+                data={books}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => bookClicked(item)}>
+                        <View style={styles.item}>
+                            <Text style={styles.itemName}>Autor: {item.author}</Text>
+                            <Text style={styles.itemName}>Tytuł: {item.title}</Text>
+                        </View>
+                    </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+            />
+            <IconButton
+                icon="plus"
+                color="#2c2829"
+                size={30}
+                onPress={() => props.navigation.navigate('AddBook', { book: { title: '', author: '', description: '' }, shelve: shelve, token: token })}
+            />
         </View>
     );
 }
 
 ShelveDetail.navigationOptions = ({ navigation }) => ({
-    title: navigation.getParam('shelve').name || 'Przepraszamy coś poszło nie tak',
-    headerRight: () => (
-        <Button
-            onPress={() => navigation.navigate('AddBook', {book: {title: '', author: '', description: ''}, shelve: navigation.getParam('shelve'), token: navigation.getParam('token')})}
-            title="Dodaj"
-        />
-    ),
+    title: 'BookCrosser',
     headerStyle: {
-        backgroundColor: 'red',
+        backgroundColor: '#9b4e0a',
+        elevation: 0,
+        shadowOpacity: 0,
     },
     headerTitleStyle: {
         fontWeight: 'bold',
+        color: 'white',
     },
 });
 
 const styles = StyleSheet.create({
-    navBar: {
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
+    container: {
+        flex: 1,
+        backgroundColor: '#f8f8f8',
+        justifyContent: 'center',
+        alignItems: 'center',
         padding: 16,
-        backgroundColor: "#f8f8f8", // Dostosuj kolor tła według własnych preferencji
     },
     name: {
         fontWeight: "bold",
         fontSize: 18,
+        marginBottom: 10,
     },
-    address: {
-        fontSize: 16,
-        marginTop: 50,
+    item: {
+        backgroundColor: "#2c2829",
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        marginVertical: 10,
+        borderRadius: 10,
     },
-    icon: {
-        fontSize: 24,
-        color: "green",
+    itemName: {
+        color: "white",
+        fontSize: 18,
+        fontWeight: "bold",
     },
+
 });

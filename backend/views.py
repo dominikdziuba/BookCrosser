@@ -10,16 +10,19 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
 
+
 class CityViewSet(viewsets.ModelViewSet):
-    queryset = City.objects.all()
+    queryset = City.objects.all().order_by('name')
     serializer_class = CitySerialzer
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
+
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
@@ -27,6 +30,17 @@ class BookViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    @action(detail=False, methods=['get'])
+    def taken_by_user(self, request):
+
+        if not request.user.is_authenticated:
+            return Response({'error': 'Użytkownik niezalogowany.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user_books = Book.objects.filter(taken_by=request.user)
+        print(user_books)
+
+        serializer = self.get_serializer(user_books, many=True)
+        return Response(serializer.data)
 
 class ShelfViewSet(viewsets.ModelViewSet):
     queryset = Shelf.objects.all()
@@ -46,10 +60,8 @@ class ShelfViewSet(viewsets.ModelViewSet):
         city_id = request.GET.get('city_id')
         search_query = request.GET.get('search_query', '')
 
-
         city = get_object_or_404(City, id=city_id)
         shelves = Shelf.objects.filter(location=city)
-
 
         books = Book.objects.filter(
             shelves__in=shelves,
@@ -61,6 +73,7 @@ class ShelfViewSet(viewsets.ModelViewSet):
         print(books)
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['PUT'], url_path='edit_book_in_shelf/(?P<book_id>\d+)')
     def edit_book_in_shelf(self, request, pk=None, book_id=None):
         user = request.user
@@ -86,6 +99,7 @@ class ShelfViewSet(viewsets.ModelViewSet):
         serializer = BookSerializer(data=request.data)
         if serializer.is_valid():
             book = serializer.save(added_by=user)
+            book = serializer.save(taken_by=None)
             shelf.books.add(book)
 
             return Response(BookSerializer(book).data, status=status.HTTP_201_CREATED)
@@ -106,6 +120,7 @@ class ShelfViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Book not found on the shelf'}, status=status.HTTP_404_NOT_FOUND)
 
         book.taken_by = user
+        book.added_by = None
         book.save()
         shelf.books.remove(book)
 
@@ -135,7 +150,7 @@ class ShelfViewSet(viewsets.ModelViewSet):
         except ValueError:
             return Response({'error': 'Invalid user coordinates.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user_coords = (user_latitude,user_longitude)
+        user_coords = (user_latitude, user_longitude)
         shelves = Shelf.objects.all()
 
         closest_shelf = None
@@ -158,4 +173,4 @@ class ShelfViewSet(viewsets.ModelViewSet):
             }
             return Response(response_data, status=status.HTTP_200_OK)
         else:
-            return Response( status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_404_NOT_FOUND)

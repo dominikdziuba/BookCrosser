@@ -13,7 +13,12 @@ const SearchBar = ({ onSearch }) => {
         onChangeText={(text) => setSearchQuery(text)}
         value={searchQuery}
       />
-      <Button title="Wyszukaj" onPress={() => onSearch(searchQuery)} />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => onSearch(searchQuery)}
+      >
+        <Text style={styles.buttonText}>Wyszukaj</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -37,7 +42,7 @@ export default function SearchBook(props) {
   }, []);
 
   const getBooks = (searchQuery) => {
-    fetch(`http://192.168.0.143:8000/backend/shelves/books_in_city/?city_id=${cityId}&search_query=${searchQuery}`, {
+    fetch(`http://192.168.0.248:8000/backend/shelves/books_in_city/?city_id=${cityId}&search_query=${searchQuery}`, {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`
@@ -74,9 +79,9 @@ export default function SearchBook(props) {
 }
 
 SearchBook.navigationOptions = ({ navigation }) => ({
-  title: 'Search Books',
+  title: 'Wyszukaj',
   headerStyle: {
-    backgroundColor: 'red',
+    backgroundColor: '#9b4e0a',
   },
   headerTitleStyle: {
     fontWeight: 'bold',
@@ -95,13 +100,30 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
   },
-  item: {
-    flex: 1,
-    padding: 10,
-    height: 50,
-    backgroundColor: '#282C35',
+item: {
+        backgroundColor: "#2c2829",
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        marginVertical: 10,
+        borderRadius: 10,
+
+    },
+    itemName: {
+        color: "white",
+        fontSize: 18,
+        fontWeight: "bold",
+    },
+    button: {
+    backgroundColor: "#9b4e0a",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    marginVertical: 10,
+    borderRadius: 10,
+        alignItems: "center"
   },
-  itemName: {
-    color: 'white',
+  buttonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

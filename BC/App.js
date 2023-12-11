@@ -12,13 +12,17 @@ import Register from "./components/register";
 import CityList from "./components/cityList";
 import SearchBook from "./components/searchBook";
 import AddBook from "./components/addBook";
+import UserBookList from "./components/userBookList"
+import UserProfile from "./components/userProfile";
 const AppNavigator = createStackNavigator({
     Start: {screen: Start},
     Register: {screen: Register},
     Auth: {screen: Auth},
     CityList: {screen: CityList},
-    SearchBook: {screen: SearchBook},
     ShelvesList: {screen: ShelvesList},
+    UserProfile: {screen: UserProfile},
+    UserBookList: {screen: UserBookList},
+    SearchBook: {screen: SearchBook},
     ShelveDetail: {screen: ShelveDetail},
     AddBook: {screen: AddBook},
     BookDetail: {screen: BookDetail},

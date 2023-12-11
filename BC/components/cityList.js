@@ -21,7 +21,7 @@ export default function CityList(props) {
   }, []);
 
   const getCities = () => {
-    fetch('http://192.168.0.143:8000/backend/cities/', {
+    fetch('http://192.168.0.248:8000/backend/cities/', {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`
@@ -40,11 +40,12 @@ export default function CityList(props) {
   return (
     <View>
       <FlatList
+          style={styles.list}
         data={cities}
         renderItem={({ item }) => (
             <TouchableOpacity onPress={() => cityClicked(item)}>
               <View style={styles.item}>
-                <Text style={styles.itemName}> {item.id}</Text>
+                <Text style={styles.itemName}> {item.name}</Text>
               </View>
             </TouchableOpacity>
         )}
@@ -56,9 +57,9 @@ export default function CityList(props) {
 }
 
 CityList.navigationOptions = ({ navigation }) => ({
-  title: 'Lista półek',
+  title: 'Wybierz miasto',
   headerStyle: {
-    backgroundColor: 'red',
+    backgroundColor: '#9b4e0a',
   },
   headerTitleStyle: {
     fontWeight: 'bold',
@@ -69,17 +70,23 @@ CityList.navigationOptions = ({ navigation }) => ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#f1f4f3',
     alignItems: 'center',
     justifyContent: 'center'
   },
+  list:{
+    backgroundColor: '#f1f4f3'
+  },
   item: {
-    flex: 1,
-    padding: 10,
-    height: 50,
-    backgroundColor: '#282C35'
+    backgroundColor: "#2c2829",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    marginVertical: 10,
+    borderRadius: 10,
   },
   itemName: {
-    color: 'white'
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
