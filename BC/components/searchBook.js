@@ -9,7 +9,7 @@ const SearchBar = ({ onSearch }) => {
     <View>
       <TextInput
         style={styles.searchInput}
-        placeholder="Search books..."
+        placeholder="Wpisz autora lub tytuł"
         onChangeText={(text) => setSearchQuery(text)}
         value={searchQuery}
       />
@@ -39,10 +39,10 @@ export default function SearchBook(props) {
 
   useEffect(() => {
     getToken();
-  }, []);
+  });
 
   const getBooks = (searchQuery) => {
-    fetch(`http://192.168.0.248:8000/backend/shelves/books_in_city/?city_id=${cityId}&search_query=${searchQuery}`, {
+    fetch(`http://192.168.8.137:8000/backend/shelves/books_in_city/?city_id=${cityId}&search_query=${searchQuery}`, {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`
@@ -50,6 +50,7 @@ export default function SearchBook(props) {
     })
       .then(res => res.json())
       .then(jsonRes => {
+          console.log(jsonRes);
         setBooks(jsonRes);
       })
       .catch(error => console.log(error))
@@ -64,6 +65,7 @@ export default function SearchBook(props) {
       <SearchBar onSearch={getBooks} />
       <FlatList
         data={books}
+        style={styles.list}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => bookClicked(item)}>
             <View style={styles.item}>
@@ -92,6 +94,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+
   },
   searchInput: {
     height: 40,
@@ -100,12 +103,16 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
   },
-item: {
+
+    item: {
         backgroundColor: "#2c2829",
         paddingVertical: 15,
         paddingHorizontal: 30,
         marginVertical: 10,
         borderRadius: 10,
+       marginLeft: 10,
+        marginRight: 10
+
 
     },
     itemName: {

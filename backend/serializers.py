@@ -17,8 +17,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(serializers.ModelSerializer):
-    #added_by = UserSelializer(many=False,read_only=True)
-    #taken_by = UserSelializer(many=False,read_only=True)
+    #added_by = UserSerializer(many=False,read_only=True)
+    #taken_by = UserSerializer(many=False,read_only=True)
     class Meta:
         model = Book
         fields = ['id', 'title', 'author', 'description', 'added_date', 'added_by', 'taken_by']

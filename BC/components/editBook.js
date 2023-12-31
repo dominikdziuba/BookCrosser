@@ -14,7 +14,7 @@ export default function EditBook(props) {
              showAlert("Błąd", "Wypełnij wszystkie pola.");
       return;
         }
-        fetch(`http://192.168.0.248:8000/backend/shelves/${shelve.id}/edit_book_in_shelf/${book.id}/`, {
+        fetch(`http://192.168.8.137:8000/backend/shelves/${shelve.id}/edit_book_in_shelf/${book.id}/`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Token ${token}`,

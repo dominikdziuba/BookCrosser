@@ -26,7 +26,7 @@ class Shelf(models.Model):
     address = models.CharField(max_length=255)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    books = models.ManyToManyField('Book', related_name='shelves', blank=True, )
+    books = models.ManyToManyField('Book', related_name='books', blank=True, )
     location = models.ForeignKey(City, on_delete=models.CASCADE, default=1, null=True)
 
     def __str__(self):

@@ -41,7 +41,7 @@ export default function Register(props) {
       showAlert("Twoje hasło powinno mieć 8 znaków.");
       return;
     }
-    fetch(`http://192.168.0.248:8000/backend/users/`, {
+    fetch(`http://192.168.8.137:8000/backend/users/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -54,6 +54,7 @@ export default function Register(props) {
     })
       .then(res => res.json())
       .then(res => {
+        console.log(res);
         console.log("Rejestracja udana");
         props.navigation.navigate('Auth');
       })

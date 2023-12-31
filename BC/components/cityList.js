@@ -21,7 +21,7 @@ export default function CityList(props) {
   }, []);
 
   const getCities = () => {
-    fetch('http://192.168.0.248:8000/backend/cities/', {
+    fetch('http://192.168.8.137:8000/backend/cities/', {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`

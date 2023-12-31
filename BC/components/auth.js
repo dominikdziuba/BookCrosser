@@ -17,7 +17,7 @@ export default function Auth(props) {
       showAlert("Błąd", "Wypełnij wszystkie pola.");
       return;
     }
-    fetch(`http://192.168.0.248:8000/auth/`, {
+    fetch(`http://192.168.8.137:8000/auth/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -32,7 +32,7 @@ export default function ShelveDetail(props) {
     }, []);
 
     const getShelveDetail = (token) => {
-        fetch(`http://192.168.0.248:8000/backend/shelves/${shelve.id}/`, {
+        fetch(`http://192.168.8.137:8000/backend/shelves/${shelve.id}/`, {
             method: 'GET',
             headers: {
                 'Authorization': `Token ${token}`

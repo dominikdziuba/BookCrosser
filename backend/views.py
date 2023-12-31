@@ -8,7 +8,6 @@ from geopy.distance import geodesic
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
 
 
 class UserViewSet(viewsets.ModelViewSet):

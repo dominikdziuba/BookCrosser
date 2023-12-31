@@ -9,7 +9,7 @@ export default function BookDetail(props) {
     const token = props.navigation.getParam('token', '');
 
     const takeBook = () => {
-        fetch(`http://192.168.0.248:8000/backend/shelves/${shelve.id}/take_book_from_shelf/`, {
+        fetch(`http://192.168.8.137:8000/backend/shelves/${shelve.id}/take_book_from_shelf/`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Token ${token}`,
@@ -38,7 +38,6 @@ export default function BookDetail(props) {
                 />
             );
         } else {
-            // Dodaj odpowiednie działania w przypadku przycisku "Dodaj"
             return ;
         }
     }

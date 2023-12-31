@@ -27,7 +27,7 @@ export default function UserBookList(props) {
 
   const getBooks = () => {
     console.log(token);
-    fetch(`http://192.168.0.248:8000/backend/books/taken_by_user`, {
+    fetch(`http://192.168.8.137:8000/backend/books/taken_by_user`, {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`

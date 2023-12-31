@@ -31,7 +31,7 @@ export default function UserProfile(props) {
 
   const getUserData = () => {
     console.log(token);
-    fetch(`http://192.168.0.248:8000/backend/users/1/`, {
+    fetch(`http://192.168.8.137:8000/backend/users/1/`, {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`

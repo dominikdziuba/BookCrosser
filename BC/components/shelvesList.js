@@ -43,7 +43,7 @@ const getLocationAsync = async () => {
 
 
 const getShelves = () => {
-  fetch(`http://192.168.0.248:8000/backend/shelves/shelves_in_city?city_id=${cityId}`, {
+  fetch(`http://192.168.8.137:8000/backend/shelves/shelves_in_city?city_id=${cityId}`, {
     method: 'GET',
     headers: {
       'Authorization': `Token ${token}`
@@ -55,7 +55,7 @@ const getShelves = () => {
 }
 
   const getClosestShelf = (userLatitude, userLongitude) => {
-    fetch(`http://192.168.0.248:8000/backend/shelves/get_closest_shelf/?user_latitude=${userLatitude}&user_longitude=${userLongitude}`, {
+    fetch(`http://192.168.8.137:8000/backend/shelves/get_closest_shelf/?user_latitude=${userLatitude}&user_longitude=${userLongitude}`, {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`

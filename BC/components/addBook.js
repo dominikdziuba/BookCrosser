@@ -29,7 +29,7 @@ export default function AddBook(props){
              showAlert("Błąd", "Wypełnij wszystkie pola.");
       return;
         }
-            fetch(`http://192.168.0.248:8000/backend/shelves/${shelve.id}/add_book_to_shelf/`, {
+            fetch(`http://192.168.8.137:8000/backend/shelves/${shelve.id}/add_book_to_shelf/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Token ${token}`,
