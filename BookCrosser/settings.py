@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-6p0(bq8yjkz#2)gyww@mr+3q#fzf1*i_pkau$1&f=76_ffw!#8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.8.137'
+
+                 ]
 
 
 # Application definition
@@ -41,7 +43,7 @@ INSTALLED_APPS = [
     'backend',
     'rest_framework',
     'rest_framework.authtoken',
-
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -81,7 +83,7 @@ WSGI_APPLICATION = 'BookCrosser.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'BCDB',
+        'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': 'localhost',

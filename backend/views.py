@@ -1,51 +1,116 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Book, Shelf
-from .serializers import BookSelializer, ShelfSerializer, UserSelializer
+from .models import Book, Shelf, City
+from .serializers import BookSerializer, ShelfSerializer, UserSerializer, CitySerialzer
 from geopy.distance import geodesic
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.shortcuts import get_object_or_404
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSelializer
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+
+
+class CityViewSet(viewsets.ModelViewSet):
+    queryset = City.objects.all().order_by('name')
+    serializer_class = CitySerialzer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
-    serializer_class = BookSelializer
+    serializer_class = BookSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes =(IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
+
+    @action(detail=False, methods=['get'])
+    def taken_by_user(self, request):
+
+        if not request.user.is_authenticated:
+            return Response({'error': 'Użytkownik niezalogowany.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user_books = Book.objects.filter(taken_by=request.user)
+        print(user_books)
+
+        serializer = self.get_serializer(user_books, many=True)
+        return Response(serializer.data)
 
 class ShelfViewSet(viewsets.ModelViewSet):
     queryset = Shelf.objects.all()
     serializer_class = ShelfSerializer
     authentication_classes = (TokenAuthentication,)
-    permission_classes =(IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
+
+    @action(detail=False, methods=['GET'])
+    def shelves_in_city(self, request):
+        city_id = request.GET.get('city_id')  # Pobierz identyfikator miasta z parametru zapytania
+        shelves = Shelf.objects.filter(location__id=city_id)
+        serializer = ShelfSerializer(shelves, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['GET'])
+    def books_in_city(self, request):
+        city_id = request.GET.get('city_id')
+        search_query = request.GET.get('search_query', '')
+
+        city = get_object_or_404(City, id=city_id)
+        shelves = Shelf.objects.filter(location=city)
+
+        books = Book.objects.filter(
+            shelves__in=shelves,
+            title__icontains=search_query
+        ) | Book.objects.filter(
+            shelves__in=shelves,
+            author__icontains=search_query
+        )
+        print(books)
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['PUT'], url_path='edit_book_in_shelf/(?P<book_id>\d+)')
+    def edit_book_in_shelf(self, request, pk=None, book_id=None):
+        user = request.user
+        shelf = Shelf.objects.get(id=pk)
+
+        try:
+            book = shelf.books.get(id=book_id)
+        except Book.DoesNotExist:
+            return Response({'message': 'Book not found on the shelf'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = BookSerializer(book, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(BookSerializer(book).data, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['POST'])
     def add_book_to_shelf(self, request, pk=None):
         # user = User.objects.get(id=1)
         user = request.user
         shelf = Shelf.objects.get(id=pk)
-        serializer = BookSelializer(data=request.data)
+        serializer = BookSerializer(data=request.data)
         if serializer.is_valid():
             book = serializer.save(added_by=user)
+            book = serializer.save(taken_by=None)
             shelf.books.add(book)
 
-            return Response({'message': 'Book added to shelf successfully'}, status=status.HTTP_201_CREATED)
+            return Response(BookSerializer(book).data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['POST'])
+    @action(detail=True, methods=['PUT'])
     def take_book_from_shelf(self, request, pk=None):
         shelf = self.get_object()
         # user = User.objects.get(id=1)
         user = request.user
-        print(user)
+
         book_id = request.data.get('book_id')
 
         try:
@@ -54,10 +119,11 @@ class ShelfViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Book not found on the shelf'}, status=status.HTTP_404_NOT_FOUND)
 
         book.taken_by = user
+        book.added_by = None
         book.save()
         shelf.books.remove(book)
 
-        return Response({'message': 'Book taken from the shelf successfully'}, status=status.HTTP_200_OK)
+        return Response(BookSerializer(book).data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['POST'])
     def create_shelf(self, request):
@@ -71,7 +137,20 @@ class ShelfViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def get_closest_shelf(self, request):
-        user_coords = (50.058667, 19.942972)
+        user_latitude_str = request.GET.get('user_latitude', '')
+        user_longitude_str = request.GET.get('user_longitude', '')
+        print(user_latitude_str)
+        print(user_longitude_str)
+        if user_latitude_str is None or user_longitude_str is None:
+            return Response({'error': 'User coordinates are missing or invalid.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user_latitude = float(user_latitude_str)
+            user_longitude = float(user_longitude_str)
+        except ValueError:
+            return Response({'error': 'Invalid user coordinates.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_coords = (user_latitude, user_longitude)
         shelves = Shelf.objects.all()
 
         closest_shelf = None
@@ -87,10 +166,11 @@ class ShelfViewSet(viewsets.ModelViewSet):
 
         if closest_shelf is not None:
             response_data = {
+                'id': closest_shelf.id,
                 "closest_shelf_name": closest_shelf.name,
                 "address": closest_shelf.address,
                 "closest_shelf_distance_km": smallest_dist
             }
             return Response(response_data, status=status.HTTP_200_OK)
         else:
-            return Response({'message': 'No shelves found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_404_NOT_FOUND)
